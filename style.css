@@ -1,0 +1,897 @@
+:root {
+    --background: #050505;
+    --foreground: #f2f2f2;
+    --card: #0a0a0a;
+    --border: #262626;
+    --input: #171717;
+    --primary: #f2f2f2;
+    --primary-foreground: #050505;
+    --muted-foreground: #ebecf0;
+    --accent: #6d28d9;
+    --accent-foreground: #ffffff;
+    --destructive: #7f1d1d;
+    --font-mono: "Geist Mono", "Courier New", monospace;
+    --success: #10b981;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-mono);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(0deg, transparent 24%, rgba(100, 150, 200, 0.03) 25%, rgba(100, 150, 200, 0.03) 26%, transparent 27%, transparent 74%, rgba(100, 150, 200, 0.03) 75%, rgba(100, 150, 200, 0.03) 76%, transparent 77%, transparent),
+        linear-gradient(90deg, transparent 24%, rgba(100, 150, 200, 0.03) 25%, rgba(100, 150, 200, 0.03) 26%, transparent 27%, transparent 74%, rgba(100, 150, 200, 0.03) 75%, rgba(100, 150, 200, 0.03) 76%, transparent 77%, transparent);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.container {
+    width: 100%;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.card {
+    width: 100%;
+    max-width: 600px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    padding: 3rem;
+    /* Increased padding */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+/* ... (Intermediate styles omitted for brevity if unchanged, but I must provide valid replacement) ... */
+/* Actually I should target specific lines or easier blocks. Let's do multiple replacements if needed or one big block if close. */
+/* The card rule is at line ~50. The title rule is at line ~135. They are far apart. */
+/* I will use separate calls or a larger block if I can see them. */
+/* Let's verify file content first to be precise. */
+
+.card.wide {
+    max-width: 900px;
+    height: auto;
+    max-height: calc(100vh - 2rem);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure stats box takes available space but doesn't overflow parent */
+.stats-box {
+    border: 1px solid var(--border);
+    padding: 1rem;
+    background: var(--input);
+    flex: 1;
+    /* Allow it to grow/shrink */
+    min-height: 0;
+    /* Crucial for nested flex scrolling */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#processTableContainer {
+    overflow-y: auto;
+    flex: 1;
+    /* Take remaining height in stats-box */
+    margin-top: 1rem;
+    border: 1px solid var(--border);
+    /* Custom Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--input);
+}
+
+/* Webkit Scrollbar Styling */
+#processTableContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+#processTableContainer::-webkit-scrollbar-track {
+    background: var(--input);
+}
+
+#processTableContainer::-webkit-scrollbar-thumb {
+    background-color: var(--accent);
+    border-radius: 4px;
+    border: 2px solid var(--input);
+}
+
+.card.dashboard {
+    width: 98vw;
+    max-width: 1800px;
+    height: calc(100vh - 2rem);
+    padding: 1.5rem;
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    gap: 1rem;
+    overflow: hidden;
+}
+
+.card.dashboard .header {
+    margin-bottom: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.card.dashboard .control-panel {
+    margin-bottom: 0;
+}
+
+.card.dashboard .gantt-chart-container {
+    margin-bottom: 0;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 515px 1fr;
+    gap: 1rem;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.dashboard-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.dashboard-main {
+    border: 1px solid var(--border);
+    background: var(--card);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-main .label {
+    padding: 0.75rem 1rem 0.25rem 1rem;
+    margin-bottom: 0;
+}
+
+.table-scroll-area {
+    overflow-y: auto;
+    flex-grow: 1;
+    margin: 2px 10px 10px 10px;
+}
+
+@media (max-width: 1024px) {
+    .card.dashboard {
+        height: auto;
+        display: flex;
+        overflow-y: auto;
+    }
+
+    .dashboard-grid {
+        display: flex;
+        flex-direction: column;
+        overflow: visible;
+    }
+
+    .dashboard-sidebar {
+        overflow: visible;
+    }
+
+    .view {
+        align-items: flex-start;
+    }
+}
+
+.header {
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: 0.1em;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: var(--muted-foreground);
+    margin: 8px 0 0 0;
+    letter-spacing: 0.1em;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.1em;
+    color: var(--muted-foreground);
+}
+
+.select,
+.input,
+input {
+    width: 100%;
+    background: var(--input);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 0.6rem;
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+}
+
+.select:focus,
+.input:focus,
+input:focus {
+    border-color: var(--accent);
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.btn-primary,
+.btn-outline,
+.btn-accent {
+    flex: 1;
+    padding: 0.85rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.btn-outline {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--foreground);
+}
+
+.btn-accent {
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.btn-primary:active,
+.btn-outline:active,
+.btn-accent:active {
+    opacity: 0.8;
+    transform: translateY(1px);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary.small,
+.btn-outline.small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    flex: initial;
+}
+
+.footer {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.view {
+    position: fixed;
+    inset: 0;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--background);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--foreground);
+}
+
+.manual-input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.7rem;
+    margin-bottom: 0.25rem;
+    color: var(--muted-foreground);
+}
+
+.full-width {
+    width: 100%;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mt-6 {
+    margin-top: 1.5rem;
+}
+
+.file-drop-zone {
+    border: 2px dashed var(--border);
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+#fileInput {
+    display: none;
+}
+
+.file-drop-zone:hover,
+.file-drop-zone.drag-active {
+    border-color: var(--accent);
+    background-color: rgba(109, 40, 217, 0.1);
+}
+
+.hint {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    margin-top: 0.5rem;
+}
+
+.error-text {
+    color: red;
+    font-size: 0.75rem;
+}
+
+/* stats-box moved up to card.wide section for better grouping */
+
+.process-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.process-table th {
+    text-align: left;
+    padding: 0.6rem;
+    background: #222;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.process-table th:last-child,
+.process-table td:last-child {
+    text-align: center;
+}
+
+/* Results Table Status Column Fix */
+.results-table th:last-child,
+.results-table td:last-child {
+    width: 120px;
+    /* Fixed width to prevent jumping */
+    min-width: 120px;
+    text-align: center;
+}
+
+.process-table td {
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.remove-btn {
+    color: #ef4444;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: var(--font-mono);
+    /* Fix font */
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.results-container {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 1rem;
+}
+
+/* Controls Row (Horizontal Layout) */
+.controls-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: stretch;
+}
+
+/* Control Panel (Now Flex-Grows) */
+.control-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    background: var(--input);
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    flex-grow: 1;
+    /* Takes remaining space */
+    margin-bottom: 0;
+    /* Remove margin as it's inside row */
+}
+
+/* Stat Box (Square-ish, Right Side) */
+.stat-box {
+    background: var(--card);
+    /* Or transparent/input based on preference */
+    border: 2px solid var(--foreground);
+    /* Thick distinctive border like reference */
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+    background-color: transparent;
+    /* Assuming white box on dark bg in reference, or outline */
+}
+
+/* Let's make it look more like the reference: Thick black border (white in dark mode) */
+.stat-box {
+    border: 2px solid var(--border);
+    background: var(--input);
+    min-width: 120px;
+}
+
+.stat-box-label {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    letter-spacing: 0.05em;
+    font-weight: bold;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.stat-box-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.separator {
+    color: var(--border);
+    font-weight: 300;
+}
+
+.label-small {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: var(--muted-foreground);
+    letter-spacing: 0.05em;
+    margin-right: 5px;
+}
+
+.speed-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.speed-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.time-display {
+    margin-left: auto;
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+}
+
+.accent-text {
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.gantt-chart-container {
+    margin-bottom: 1.5rem;
+}
+
+.gantt-chart {
+    position: relative;
+    height: 60px;
+    background: var(--input);
+    border: 1px solid var(--border);
+    margin-top: 0.5rem;
+    border-radius: 4px;
+    overflow: hidden;
+    /* Removed display: flex to rely on absolute positioning */
+}
+
+.gantt-block {
+    position: absolute;
+    height: 100%;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.75rem;
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    transition: width 0.1s linear;
+}
+
+.gantt-gap {
+    background: repeating-linear-gradient(45deg, #333, #333 10px, #262626 10px, #262626 20px);
+    color: #888;
+    text-shadow: none;
+    font-style: italic;
+}
+
+.color-1 {
+    background: #27AE60;
+}
+
+.color-2 {
+    background: #3498DB;
+}
+
+.color-3 {
+    background: #F39C12;
+}
+
+.color-4 {
+    background: #E74C3C;
+}
+
+.color-5 {
+    background: #9B59B6;
+}
+
+.color-6 {
+    background: #1ABC9C;
+}
+
+.color-7 {
+    background: #E67E22;
+}
+
+.color-8 {
+    background: #2ECC71;
+}
+
+.color-9 {
+    background: #8E44AD;
+}
+
+.color-10 {
+    background: #C0392B;
+}
+
+.time-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--muted-foreground);
+    margin-top: 5px;
+}
+
+.queues-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.queue-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.stats-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.queue-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1rem;
+}
+
+.queue-container {
+    min-height: 50px;
+    background: var(--input);
+    border: 1px solid var(--border);
+    padding: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.queue-item {
+    padding: 0.35rem 0.6rem;
+    background: rgba(109, 40, 217, 0.2);
+    border: 1px solid var(--accent);
+    color: var(--foreground);
+    font-size: 0.85rem;
+    font-weight: bold;
+    font-family: var(--font-mono);
+}
+
+.queue-item.done {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--success);
+}
+
+.active-process-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    flex-grow: 1;
+}
+
+.active-process-indicator {
+    height: 60px;
+    background: var(--input);
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.mini-stats {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.stat-item {
+    flex: 1;
+    background: var(--input);
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    text-align: center;
+}
+
+.label-xs {
+    display: block;
+    font-size: 0.6rem;
+    color: var(--muted-foreground);
+    margin-bottom: 2px;
+}
+
+.value-xs {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.table-container {
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 1rem;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.results-table th,
+.results-table td {
+    border: 1px solid var(--border);
+    padding: 0.35rem;
+    /* Reduced from 0.5rem */
+    text-align: center;
+}
+
+.results-table th {
+    background: var(--input);
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+
+.status-running {
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.status-done {
+    color: var(--success);
+    font-weight: bold;
+}
+
+/* Toast Notification Styles */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    /* Allow clicks to pass through container */
+}
+
+.toast {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    min-width: 200px;
+    max-width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: toastEnter 0.3s forwards;
+    pointer-events: auto;
+    /* Enable interaction with toasts */
+    border-left: 4px solid var(--accent);
+}
+
+.toast.error {
+    border-left-color: var(--destructive);
+}
+
+.toast.success {
+    border-left-color: var(--success);
+}
+
+.toast.exiting {
+    animation: toastExit 0.3s forwards;
+}
+
+@keyframes toastEnter {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toastExit {
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* Toast Notification Styles */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    /* Allow clicks to pass through container */
+}
+
+.toast {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    min-width: 200px;
+    max-width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: toastEnter 0.3s forwards;
+    pointer-events: auto;
+    /* Enable interaction with toasts */
+    border-left: 4px solid var(--accent);
+}
+
+.toast.error {
+    border-left-color: var(--destructive);
+}
+
+.toast.success {
+    border-left-color: var(--success);
+}
+
+.toast.exiting {
+    animation: toastExit 0.3s forwards;
+}
+
+@keyframes toastEnter {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toastExit {
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}

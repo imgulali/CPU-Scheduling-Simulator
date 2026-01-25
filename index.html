@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CPU Scheduler Simulator</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <!-- VIEW 1: HOME -->
+    <div id="view-home" class="container view">
+        <div class="card">
+            <div class="header">
+                <h1 class="title">CPU SCHEDULER</h1>
+                <p class="subtitle">SIMULATION ENGINE v1.0</p>
+            </div>
+
+            <div class="form-group">
+                <label class="label">INPUT METHOD</label>
+                <select id="homeInputMethod" class="select">
+                    <option value="Manual">Manual Entry</option>
+                    <option value="File">File Upload</option>
+                    <option value="Random">Random Generate</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="label">ALGORITHM</label>
+                <select id="homeAlgorithm" class="select">
+                    <option value="FCFS">FCFS - First Come First Served</option>
+                    <option value="SJF">SJF - Shortest Job First</option>
+                    <option value="RR">RR - Round Robin</option>
+                    <option value="PRIORITY">Priority Scheduling</option>
+                    <option value="SRTF">SRTF - Shortest Remaining Time First</option>
+                </select>
+            </div>
+
+            <div class="controls">
+                <button id="homeExitBtn" class="btn-outline">EXIT</button>
+                <button id="homeStartBtn" class="btn-primary">START</button>
+            </div>
+
+            <div class="footer">
+                <p>STATUS: <span id="homeStatus">READY</span></p>
+                <p>MODE: INTERACTIVE</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 2: PROCESS ENTRY -->
+    <div id="view-input" class="container view hidden">
+        <div class="card wide">
+            <div class="header">
+                <h1 class="title">PROCESS ENTRY</h1>
+                <p id="inputSubtitle" class="subtitle">METHOD: MANUAL | ALGORITHM: FCFS</p>
+            </div>
+
+            <!-- Manual Input Section -->
+            <div id="inputSectionManual" class="input-section">
+                <h2 class="section-title">MANUAL ENTRY</h2>
+                <div class="manual-input-grid">
+                    <div class="input-group">
+                        <label>PROCESS ID</label>
+                        <input type="text" id="manualId" placeholder="e.g., P1">
+                    </div>
+                    <div class="input-group">
+                        <label>BURST TIME</label>
+                        <input type="number" id="manualBurst" placeholder="e.g., 5" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label>ARRIVAL TIME</label>
+                        <input type="number" id="manualArrival" placeholder="e.g., 0" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>PRIORITY</label>
+                        <input type="number" id="manualPriority" placeholder="e.g., 1" min="1">
+                    </div>
+                </div>
+                <button id="manualAddBtn" class="btn-primary full-width mt-4">ADD PROCESS</button>
+            </div>
+
+            <!-- File Input Section -->
+            <div id="inputSectionFile" class="input-section hidden">
+                <h2 class="section-title">FILE UPLOAD</h2>
+                <div class="file-drop-zone" id="fileDropZone">
+                    <p>SELECT .TXT FILE</p>
+                    <input type="file" id="fileInput" accept=".txt">
+                </div>
+
+                <p id="fileError" class="error-text"></p>
+            </div>
+
+            <!-- Random Input Section -->
+            <div id="inputSectionRandom" class="input-section hidden">
+                <h2 class="section-title">RANDOM GENERATION</h2>
+                <p class="hint">CLICK TO GENERATE 3-10 RANDOM PROCESSES</p>
+                <button id="randomGenerateBtn" class="btn-accent full-width mt-4">GENERATE RANDOM</button>
+            </div>
+
+            <!-- Time Quantum (For RR) -->
+            <div id="quantumSection" class="input-section mt-4 hidden">
+                <div class="input-group">
+                    <label>TIME QUANTUM</label>
+                    <input type="number" id="timeQuantum" value="2" min="1">
+                </div>
+            </div>
+
+            <!-- Processes List/Stats -->
+            <div class="stats-box mt-6">
+                <div class="flex justify-between">
+                    <span>PROCESSES:</span>
+                    <span id="processCount">0/10</span>
+                </div>
+                <div id="processTableContainer" class="mt-4 hidden">
+                    <table class="process-table">
+                        <thead>
+                            <tr>
+                                <th>PROCESS ID</th>
+                                <th>BURST TIME</th>
+                                <th>ARRIVAL TIME</th>
+                                <th>PRIORITY</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inputProcessList">
+                            <!-- Rows go here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="controls mt-6">
+                <button id="inputBackBtn" class="btn-outline">BACK</button>
+                <button id="inputSimulateBtn" class="btn-primary" disabled>SIMULATE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 3: RESULTS -->
+    <div id="view-results" class="results-container hidden">
+        <div class="card dashboard">
+            <div class="header">
+                <h2 class="title">SIMULATION ENGINE</h2>
+                <button id="resultsBackBtn" class="btn-outline small">BACK</button>
+            </div>
+
+            <!-- Controls & Stats Row -->
+            <div class="controls-row">
+                <!-- Simulation Controls (Left) -->
+                <div class="control-panel">
+                    <div class="control-group">
+                        <button id="playPauseBtn" class="btn-primary small">PLAY</button>
+                        <button id="resetBtn" class="btn-outline small">RESET</button>
+                    </div>
+
+                    <div class="control-group">
+                        <span class="label-small">SPEED:</span>
+                        <button class="speed-btn active" data-speed="1">1x</button>
+                        <button class="speed-btn" data-speed="2">2x</button>
+                        <button class="speed-btn" data-speed="4">4x</button>
+                    </div>
+
+                    <div class="time-display">
+                        TIME: <span id="timeDisplay" class="accent-text">0</span> / <span id="maxTimeDisplay">0</span>
+                    </div>
+                </div>
+
+                <!-- Stats Boxes (Right) -->
+                <div class="stat-box">
+                    <span class="stat-box-label">AVG WT</span>
+                    <span id="avgWt" class="stat-box-value">0.00</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box-label">AVG TAT</span>
+                    <span id="avgTat" class="stat-box-value">0.00</span>
+                </div>
+            </div>
+
+            <!-- Gantt Chart -->
+            <div class="gantt-chart-container">
+                <label class="label">GANTT CHART</label>
+                <div id="ganttChart" class="gantt-chart animated">
+                    <!-- Dynamic content -->
+                </div>
+                <div class="time-scale" id="ganttTimeScale">
+                    <span>0</span>
+                    <span id="midTime"></span>
+                    <span id="endTime"></span>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid: Sidebar (Queues/Stats) + Main (Table) -->
+            <div class="dashboard-grid">
+                <!-- Sidebar -->
+                <div class="dashboard-sidebar">
+                    <!-- Queue: Ready -->
+                    <div class="queue-box">
+                        <label class="label">READY QUEUE</label>
+                        <div id="readyQueue" class="queue-container"></div>
+                    </div>
+
+                    <!-- Queue: Completed -->
+                    <div class="queue-box">
+                        <label class="label">COMPLETED</label>
+                        <div id="completedQueue" class="queue-container"></div>
+                    </div>
+
+                    <!-- Active Process -->
+                    <div class="active-process-box">
+                        <label class="label">ACTIVE PROCESS</label>
+                        <div id="activeProcess" class="active-process-indicator">IDLE</div>
+                    </div>
+                </div>
+
+                <!-- Main Content: Table -->
+                <div class="dashboard-main">
+                    <label class="label">PROCESS DETAILS</label>
+                    <div class="table-scroll-area">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th style="position: sticky; top: 0;">PROCESS ID</th>
+                                    <th style="position: sticky; top: 0;">ARRIVAL TIME</th>
+                                    <th style="position: sticky; top: 0;">BURST TIME</th>
+                                    <th style="position: sticky; top: 0;">PRIORITY</th>
+                                    <th style="position: sticky; top: 0;">WAITING TIME</th>
+                                    <th style="position: sticky; top: 0;">TURNAROUND TIME</th>
+                                    <th style="position: sticky; top: 0;">STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+    <script type="module" src="/main.js"></script>
+</body>
+
+</html>
