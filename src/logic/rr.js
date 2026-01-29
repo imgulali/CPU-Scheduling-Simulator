@@ -6,22 +6,11 @@ export function roundRobin(processes, timeQuantum) {
     let currentTime = 0;
     let completed = 0;
     let inQueue = new Array(n).fill(false);
-    let executionOrder = []; // To store {pid, start, end}
+    let executionOrder = [];
 
-    // Sort by arrival time initially
-    // The loop handles time and queue management
-
-    // Deep copy to avoid modifying original input if reused
     let pList = processes.map(p => Object.assign(Object.create(Object.getPrototypeOf(p)), p));
 
-    // Logic:
-    // 1. Check arrivals -> Push to ready queue
-    // 2. Execute process for min(quantum, remaining)
-    // 3. Check new arrivals
-    // 4. Re-queue if not finished
-
     while (completed < n) {
-        // Check for arrivals
         for (let i = 0; i < n; i++) {
             if (pList[i].arrivalTime <= currentTime && pList[i].remainingTime > 0 && !inQueue[i]) {
                 readyQueue.push(i);
@@ -38,7 +27,6 @@ export function roundRobin(processes, timeQuantum) {
 
         let execTime = Math.min(timeQuantum, pList[idx].remainingTime);
 
-        // Record execution for Gantt
         executionOrder.push({
             pid: pList[idx].pid,
             start: currentTime,
@@ -48,7 +36,6 @@ export function roundRobin(processes, timeQuantum) {
         pList[idx].remainingTime -= execTime;
         currentTime += execTime;
 
-        // Check for arrivals again
         for (let i = 0; i < n; i++) {
             if (pList[i].arrivalTime <= currentTime && pList[i].remainingTime > 0 && !inQueue[i]) {
                 readyQueue.push(i);

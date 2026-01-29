@@ -1,5 +1,3 @@
-// Common data structures
-
 export class Process {
     constructor(pid, arrivalTime, burstTime, priority = 0) {
         this.pid = pid;
@@ -10,14 +8,14 @@ export class Process {
         this.completionTime = 0;
         this.waitingTime = 0;
         this.turnaroundTime = 0;
-        this.startTime = -1; // For Gantt chart
+        this.startTime = -1;
     }
 }
 
 export class SchedulerResult {
     constructor(processes, order, averageWaitingTime, averageTurnaroundTime) {
-        this.processes = processes; // List of processes with computed times
-        this.order = order; // Execution order [{pid, start, end}, ...] for Gantt
+        this.processes = processes;
+        this.order = order;
         this.averageWaitingTime = averageWaitingTime;
         this.averageTurnaroundTime = averageTurnaroundTime;
     }

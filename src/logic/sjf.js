@@ -12,7 +12,6 @@ export function sjf(processes) {
         let idx = -1;
         let minBurst = Infinity;
 
-        // Find process with min burst time among those that have arrived
         for (let i = 0; i < n; i++) {
             if (pList[i].burstTime < minBurst) {
                 minBurst = pList[i].burstTime;

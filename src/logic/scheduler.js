@@ -8,6 +8,6 @@ export const Scheduler = {
     FCFS: fcfs,
     SJF: sjf,
     RR: roundRobin,
-    PRIORITY: priorityPreemptive, // Preemptive
+    PRIORITY: priorityPreemptive,
     SRTF: srtf
 };

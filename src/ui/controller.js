@@ -1,37 +1,32 @@
 import { Process } from '../logic/process.js';
 import { Scheduler } from '../logic/scheduler.js';
 
-// --- STATE ---
 const state = {
-    view: 'home', // home, input, results
+    view: 'home',
     method: 'Manual',
     algorithm: 'FCFS',
-    processes: [], // {id, burst, arrival, priority} (raw input)
-    simulationResult: null, // Full calculated result
+    processes: [],
+    simulationResult: null,
 
-    // Animation State
     currentTime: 0,
     isPlaying: false,
-    speed: 1, // Multiplier for step
+    speed: 1,
     animationId: null,
     maxTime: 0,
     completedPids: []
 };
 
-// --- DOM ELEMENTS ---
 const views = {
     home: document.getElementById('view-home'),
     input: document.getElementById('view-input'),
     results: document.getElementById('view-results'),
 };
 
-// Home Elements
 const homeInputMethod = document.getElementById('homeInputMethod');
 const homeAlgorithm = document.getElementById('homeAlgorithm');
 const homeStartBtn = document.getElementById('homeStartBtn');
 const homeExitBtn = document.getElementById('homeExitBtn');
 
-// Input Elements
 const inputSubtitle = document.getElementById('inputSubtitle');
 const inputSections = {
     Manual: document.getElementById('inputSectionManual'),
@@ -55,7 +50,6 @@ const randomGenerateBtn = document.getElementById('randomGenerateBtn');
 const fileInput = document.getElementById('fileInput');
 const fileError = document.getElementById('fileError');
 
-// Results & Simulation Elements
 const resultsBackBtn = document.getElementById('resultsBackBtn');
 const playPauseBtn = document.getElementById('playPauseBtn');
 const resetBtn = document.getElementById('resetBtn');
@@ -76,15 +70,12 @@ const avgTatSpan = document.getElementById('avgTat');
 const resultsBody = document.getElementById('resultsBody');
 
 
-// --- INITIALIZATION ---
 function init() {
     setupEventListeners();
     updateView();
 }
 
-// --- EVENT LISTENERS ---
 function setupEventListeners() {
-    // Home
     homeStartBtn.addEventListener('click', () => {
         state.method = homeInputMethod.value;
         state.algorithm = homeAlgorithm.value;
@@ -96,7 +87,6 @@ function setupEventListeners() {
         if (confirm("Exit Simulator?")) window.close();
     });
 
-    // Input View
     inputBackBtn.addEventListener('click', () => {
         setView('home');
     });
@@ -105,7 +95,6 @@ function setupEventListeners() {
     manualAddBtn.addEventListener('click', addManualProcess);
     randomGenerateBtn.addEventListener('click', generateRandomProcesses);
 
-    // File Input & Drag and Drop
     const dropZone = document.getElementById('fileDropZone');
 
     fileInput.addEventListener('change', (e) => {
@@ -138,13 +127,10 @@ function setupEventListeners() {
         if (file) processFile(file);
     });
 
-    dropZone.addEventListener('click', () => fileInput.click()); // Click to upload
+    dropZone.addEventListener('click', () => fileInput.click());
 
-
-
-    // Results View
     resultsBackBtn.addEventListener('click', () => {
-        stopAnimation(); // Important!
+        stopAnimation();
         setView('input');
     });
 
@@ -160,7 +146,6 @@ function setupEventListeners() {
     });
 }
 
-// --- VIEW NAVIGATION ---
 function setView(viewName) {
     state.view = viewName;
     updateView();
@@ -175,7 +160,6 @@ function updateView() {
     }
 }
 
-// --- INPUT LOGIC ---
 function renderInputScreen() {
     inputSubtitle.textContent = `METHOD: ${state.method.toUpperCase()} | ALGORITHM: ${state.algorithm}`;
     Object.values(inputSections).forEach(el => el.classList.add('hidden'));
@@ -222,12 +206,10 @@ function renderProcessList() {
     }
 }
 
-// Helper to check for duplicate IDs
 function isDuplicateId(id, processList = state.processes) {
     return processList.some(p => p.id === id);
 }
 
-// Toast Notification Helper
 function showToast(message, type = 'error') {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -238,7 +220,6 @@ function showToast(message, type = 'error') {
 
     container.appendChild(toast);
 
-    // Remove after 3 seconds
     setTimeout(() => {
         toast.classList.add('exiting');
         toast.addEventListener('animationend', () => {
@@ -250,7 +231,6 @@ function showToast(message, type = 'error') {
 function addManualProcess() {
     if (state.processes.length >= 10) return showToast("Maximum 10 processes allowed.", 'error');
 
-    // Default ID logic
     let id = manualId.value.trim();
     if (!id) {
         let nextIdx = state.processes.length + 1;
@@ -279,7 +259,6 @@ function generateRandomProcesses() {
     const count = Math.floor(Math.random() * 8) + 3;
     for (let i = 0; i < count; i++) {
         let idVal = `P${i + 1}`;
-        // Verify unique just in case (though loop guarantees it here)
         state.processes.push({
             id: idVal,
             burstTime: Math.floor(Math.random() * 15) + 1,
@@ -289,8 +268,6 @@ function generateRandomProcesses() {
     }
     renderProcessList();
 }
-
-
 
 function handleFileDrop(e) {
     const dt = e.dataTransfer;
@@ -306,7 +283,7 @@ function processFile(file) {
             const text = event.target.result;
             const lines = text.split('\n').filter(line => line.trim());
             const newProcesses = [];
-            const seenIds = new Set(); // To track duplicates within file
+            const seenIds = new Set();
 
             lines.forEach(line => {
                 const parts = line.trim().split(/\s+/);
@@ -330,7 +307,7 @@ function processFile(file) {
             state.processes = newProcesses.slice(0, 10);
             renderProcessList();
             fileError.textContent = "";
-            fileInput.value = ''; // Reset input to allow same file re-upload
+            fileInput.value = '';
         } catch (err) {
             fileError.textContent = err.message || "Error parsing file.";
         }
@@ -338,18 +315,13 @@ function processFile(file) {
     reader.readAsText(file);
 }
 
-// Kept for backward compatibility if needed, but listeners replaced above
 function handleFileUpload(e) {
-    // Legacy reference, logic moved to processFile
     processFile(e.target.files[0]);
 }
-
-// --- ANIMATION LOGIC ---
 
 function runSimulation() {
     if (state.processes.length === 0) return;
 
-    // 1. Calculate Full Result (Pre-calculation)
     const inputObjects = state.processes.map(p => new Process(p.id, p.arrivalTime, p.burstTime, p.priority));
     const quantum = parseInt(timeQuantumInput.value) || 2;
 
@@ -365,25 +337,22 @@ function runSimulation() {
 
         state.simulationResult = result;
 
-        // 2. Setup Animation State
         state.currentTime = 0;
-        state.isPlaying = false; // Start paused or auto-play? Let's auto-play.
+        state.isPlaying = false;
         state.completedPids = [];
 
-        // Determine Max Time
         if (result.order.length > 0) {
             state.maxTime = result.order[result.order.length - 1].end;
         } else {
             state.maxTime = 10;
         }
 
-        // Init UI
         resetAnimationUI();
         avgWtSpan.textContent = result.averageWaitingTime.toFixed(2);
         avgTatSpan.textContent = result.averageTurnaroundTime.toFixed(2);
 
         setView('results');
-        toggleAnimation(); // Auto-start
+        toggleAnimation();
 
     } catch (e) {
         console.error(e);
@@ -411,9 +380,8 @@ function resetAnimationUI() {
     readyQueueEl.innerHTML = '<span class="text-muted-foreground">[ EMPTY ]</span>';
     completedQueueEl.innerHTML = '<span class="text-muted-foreground">[ NONE ]</span>';
     activeProcessEl.textContent = 'IDLE';
-    resultsBody.innerHTML = ''; // Table
+    resultsBody.innerHTML = '';
 
-    // Populate Table with Initial State
     state.simulationResult.processes.forEach(p => {
         const tr = document.createElement('tr');
         tr.id = `row-${p.pid}`;
@@ -453,12 +421,9 @@ let lastFrameTime = 0;
 function tick(timestamp) {
     if (!state.isPlaying) return;
 
-    const delta = (timestamp - lastFrameTime) / 1000; // Seconds
+    const delta = (timestamp - lastFrameTime) / 1000;
     lastFrameTime = timestamp;
 
-    // Speed factor: e.g. 1x = 1 sec simulation per real sec? 
-    // Usually sims run faster. Let's say 1 unit time = 1 real second is too slow.
-    // Let's say 1x speed => 5 simulation time units per second.
     const timeStep = delta * (2 * state.speed);
 
     state.currentTime += timeStep;
@@ -481,9 +446,7 @@ function renderSimulationFrame() {
 
     const result = state.simulationResult;
 
-    // 1. Identify Running Process
     let runningBlock = null;
-    // Find the block that overlaps with current time
     for (const block of result.order) {
         if (curTime >= block.start && curTime < block.end) {
             runningBlock = block;
@@ -491,52 +454,29 @@ function renderSimulationFrame() {
         }
     }
 
-    // Update Active Indicator
     if (runningBlock) {
         activeProcessEl.textContent = runningBlock.pid;
     } else {
         activeProcessEl.textContent = 'IDLE';
     }
 
-    // 2. Update Gantt Chart
-    // We can clear and redraw, OR perform delta updates. 
-    // Redrawing everything is easier for correctness but expensive? 
-    // With < 100 DOM nodes it's fine.
-    // BUT to make it look smooth (filling bars), we should draw blocks up to current time.
-
-    // 2. Update Gantt Chart
     ganttChart.innerHTML = '';
 
-    // Draw Gaps/Idle explicitly
     let lastEnd = 0;
 
-    // We need to iterate chronologically to find gaps. `result.order` is sorted by start time usually.
-    // Let's assume it is.
-
     for (const block of result.order) {
-        if (block.start > curTime) break; // Future block, but what if there's a gap before it?
+        if (block.start > curTime) break;
 
-        // Check for gap before this block
         if (block.start > lastEnd) {
-            // There is a gap from lastEnd to block.start
-            // Is this gap fully visible?
-            // renderGap(lastEnd, block.start)
             renderGanttBlock(lastEnd, block.start, 'IDLE', 'gap');
         }
 
-        // Render current block
-        // Cap end time at curTime
         let renderEnd = (block.end > curTime) ? curTime : block.end;
         renderGanttBlock(block.start, renderEnd, block.pid, 'process', block.pid);
 
-        // Update lastEnd
-        // Note: result.order might have overlaps in some weird logic, but usually scheduling is non-overlapping for 1 CPU.
-        // If overlapping (e.g. multi-core?), this logic breaks. Assuming single CPU non-overlapping.
         if (block.end > lastEnd) lastEnd = block.end;
     }
 
-    // Check for trailing gap if curTime > lastEnd (e.g. we are waiting for something but nothing scheduled?)
-    // Usually scheduler stops at maxTime. If curTime > lastEnd, it means we are idling at the end?
     if (curTime > lastEnd) {
         renderGanttBlock(lastEnd, curTime, 'IDLE', 'gap');
     }
@@ -563,24 +503,11 @@ function renderSimulationFrame() {
         ganttChart.appendChild(el);
     }
 
-    // 3. Update Ready Queue (Arrival <= curTime AND Not Completed)
-    // Wait, "Not Completed" is tricky. A process is in ready queue if arrived, not currently running, and not done.
-    // Actually, simple Logic:
-    // Ready = Arrived <= CurTime AND (RemainingTime > 0)
-    // AND (Running != Process) ? 
-    // In strict sense, Running process is also "Ready" (state transition Ready->Running), but usually we separate them visually.
-
-    // We need to track remaining time dynamically? 
-    // Or we can just infer from result.
-
-    // Let's use `result.order` to see what has been done up to now.
-    // Total burst executed for each PID up to curTime.
     const executedMap = {};
     result.order.forEach(block => {
         if (block.end <= curTime) {
             executedMap[block.pid] = (executedMap[block.pid] || 0) + (block.end - block.start);
         } else if (block.start < curTime) {
-            // Partial execution
             executedMap[block.pid] = (executedMap[block.pid] || 0) + (curTime - block.start);
         }
     });
@@ -590,13 +517,11 @@ function renderSimulationFrame() {
     const doneProcs = [];
 
     state.processes.forEach(p => {
-        // This 'p' is raw input. Need burstTime.
-        // We assume PID is consistent.
         const arrived = p.arrivalTime <= curTime;
         if (!arrived) return;
 
         const completedBurst = executedMap[p.id] || 0;
-        const isFinished = completedBurst >= p.burstTime - 0.01; // Epsilon
+        const isFinished = completedBurst >= p.burstTime - 0.01;
         const isRunning = (runningBlock && runningBlock.pid == p.id);
 
         if (isFinished) {
@@ -605,7 +530,6 @@ function renderSimulationFrame() {
             readyProcs.push(p.id);
         }
 
-        // Update Table Status
         const row = document.getElementById(`row-${p.id}`);
         if (row) {
             const statusCell = row.querySelector('.status-cell');
@@ -615,7 +539,6 @@ function renderSimulationFrame() {
             if (isFinished) {
                 statusCell.textContent = 'DONE';
                 statusCell.className = 'status-cell status-done';
-                // Show final stats from result
                 const resP = result.processes.find(rp => rp.pid == p.id);
                 if (resP) {
                     tapCell.textContent = resP.turnaroundTime;
@@ -662,5 +585,4 @@ function getColorId(pid) {
     return Math.abs(hash);
 }
 
-// Start
 init();

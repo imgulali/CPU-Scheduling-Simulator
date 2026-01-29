@@ -6,7 +6,6 @@ export function fcfs(processes) {
     let currentTime = 0;
     let executionOrder = [];
 
-    // Sort by Arrival Time
     pList.sort((a, b) => a.arrivalTime - b.arrivalTime);
 
     for (let i = 0; i < n; i++) {

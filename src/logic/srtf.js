@@ -7,24 +7,17 @@ export function srtf(processes) {
     let pList = processes.map(p => Object.assign(Object.create(Object.getPrototypeOf(p)), p));
     let executionOrder = [];
 
-    // Priority Queue: {remainingTime, index}
-    // Min Heap on remainingTime
-
-    let pq = []; // {rem, idx}
+    let pq = [];
 
     const pushToPQ = (idx) => {
         pq.push({ rem: pList[idx].remainingTime, idx: idx });
-        // Sort Ascending by remaining time
         pq.sort((a, b) => {
             if (a.rem !== b.rem) return a.rem - b.rem;
             return a.idx - b.idx;
         });
     };
 
-    // Manually manage the list by popping and pushing back
-
     while (completed < n) {
-        // Check arrivals
         for (let i = 0; i < n; i++) {
             if (pList[i].arrivalTime === currentTime) {
                 pushToPQ(i);
@@ -32,12 +25,11 @@ export function srtf(processes) {
         }
 
         if (pq.length > 0) {
-            let top = pq.shift(); // Pop best
+            let top = pq.shift();
             let idx = top.idx;
 
             pList[idx].remainingTime--;
 
-            // Gantt Chart logic
             if (executionOrder.length > 0 && executionOrder[executionOrder.length - 1].pid === pList[idx].pid) {
                 executionOrder[executionOrder.length - 1].end++;
             } else {
