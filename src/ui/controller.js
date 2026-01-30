@@ -57,6 +57,8 @@ const speedBtns = document.querySelectorAll('.speed-btn');
 const timeDisplay = document.getElementById('timeDisplay');
 const maxTimeDisplay = document.getElementById('maxTimeDisplay');
 
+const themeToggle = document.getElementById('themeToggle');
+
 const ganttChart = document.getElementById('ganttChart');
 const midTime = document.getElementById('midTime');
 const endTime = document.getElementById('endTime');
@@ -144,6 +146,17 @@ function setupEventListeners() {
             state.speed = parseFloat(e.target.dataset.speed);
         });
     });
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+    }
+    
+    // Initialize theme from local storage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        if (themeToggle) themeToggle.textContent = '☀';
+    }
 }
 
 function setView(viewName) {
@@ -583,6 +596,13 @@ function getColorId(pid) {
     const str = String(pid);
     for (let i = 0; i < str.length; i++) hash += str.charCodeAt(i);
     return Math.abs(hash);
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    themeToggle.textContent = isLight ? '☀' : '☾';
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
 }
 
 init();
